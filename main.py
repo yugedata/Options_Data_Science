@@ -99,7 +99,49 @@ print(len(columns_unwanted))
 print(len(columns_wanted))
 print(len(stocks))
 
-# /\ This segment was used to sort out unique columns after i hard coded the columns i wanted
 
+# /\ This segment was used to sort out unique columns after i hard coded the columns i wanted
+outs = []
+
+
+def unique_list(n):
+    output = []
+
+    for x in n:
+        if x not in output:
+            output.append(x)
+        else:
+            print(x)
+    print(len(output))
+
+    return 0
+
+
+for i in opt_column_names:
+    for j in columns_wanted:
+        if i == j:
+            outs.append(i)
+
+print(outs)
+print(len(outs))
+unique_list(outs)
+
+# \/
+
+
+def get_chain(s):
+    opt_lookup = TDSession.get_options_chain(
+        option_chain={'symbol': s, 'strikeCount': 50,
+                      'toDate': '2021-2-28'})
+
+    return opt_lookup
+
+
+def narrow_print():
+    opt_lookup = get_chain('SPY')
+    narrow = opt_lookup['putExpDateMap']['2020-11-27:1']['363.0'][0]
+    for m in narrow.keys():
+        print(m, narrow[m])
+    return 0
 
 
