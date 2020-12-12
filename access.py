@@ -25,7 +25,7 @@ y_yes = []
 
 for row in c.execute(f'SELECT quoteTimeInLong FROM puts WHERE symbol = \'AAPL_121120P123\''):
     for t in row:
-        temp = t // 100000
+        temp = int(t) // 100000
         # print(temp)
         check.append(temp)
 

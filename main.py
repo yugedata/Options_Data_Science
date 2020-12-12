@@ -8,9 +8,9 @@ import sqlite3
 import time
 
 TDSession = TDClient(
-    client_id='AYGTNN1VCCC3GV7SBFAGT3SZC8AXEPBE',
-    redirect_uri='https://172.0.0.1',
-    credentials_path='/Users/Sato/Documents/PycharmProjects/open_interest/td_state.json'
+    client_id='JPAK1337',
+    redirect_uri='http://127.0.0.1/',
+    credentials_path='C:\\Users\\Josh\\Documents\\TradingCode\\Options_Data_Science\\token.json'
 )
 
 TDSession.login()
@@ -258,7 +258,7 @@ def start():
     pull_count = 0
     end_t = 1600
 
-    while get_time_now() < end_t:
+    while get_time_now():
         get_next_chains()
         pull_count = pull_count + 1
         print(pull_count)
@@ -273,17 +273,16 @@ def start():
 
 # |SQLite management| #
 #
-# make_sqlite_table('calls')  # inputs: puts|calls
+#make_sqlite_table('puts')  # inputs: puts|calls
 # add_rows(clean_chain(raw_chain(get_chain('SPY'), 'put')), 'puts')  # raw_chain(,'put|call')), 'puts|calls')
 # delete_db_table('calls')
 # delete_db_table('puts')
-# show_db_table('puts')
-# show_db_table('calls')
+show_db_table('puts')
+show_db_table('calls')
 
 
 def main():
     start()
     return 0
 
-
-main()
+#main()
