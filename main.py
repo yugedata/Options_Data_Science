@@ -5,7 +5,6 @@ from td import exceptions
 import datetime
 import pandas as pd
 import sqlite3
-import time
 
 TDSession = TDClient(
     client_id='AYGTNN1VCCC3GV7SBFAGT3SZC8AXEPBE',
