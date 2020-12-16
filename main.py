@@ -1,16 +1,16 @@
 from sqlalchemy import create_engine
 from td.client import TDClient
 from datetime import datetime
-from td.exceptions import ServerError
+from td import exceptions
 import datetime
 import pandas as pd
 import sqlite3
 import time
 
 TDSession = TDClient(
-    client_id='JPAK1337',
-    redirect_uri='http://127.0.0.1/',
-    credentials_path='C:\\Users\\Josh\\Documents\\TradingCode\\Options_Data_Science\\token.json'
+    client_id='AYGTNN1VCCC3GV7SBFAGT3SZC8AXEPBE',
+    redirect_uri='https://127.0.0.1',
+    credentials_path='/Users/Sato/Documents/PycharmProjects/open_interest/td_state.json'
 )
 
 TDSession.login()
@@ -192,10 +192,20 @@ def add_rows(clean_data, table_name):
     return 0
 
 
-def delete_db_table(table):
+def delete_row(table_name, column, argument):
     conn = sqlite3.connect('options.db')
     con = conn.cursor()
-    con.execute(f'DROP TABLE {table}')
+    con.execute(f'DELETE FROM {table_name} WHERE {column}={argument}')
+    conn.commit()
+    conn.close()
+
+    return 0
+
+
+def delete_db_table(table_name):
+    conn = sqlite3.connect('options.db')
+    con = conn.cursor()
+    con.execute(f'DROP TABLE {table_name}')
     conn.commit()
     conn.close()
 
@@ -225,7 +235,7 @@ def get_next_chains():
         error = False
         try:
             chain = get_chain(stock)
-        except ServerError:
+        except (exceptions.ServerError, exceptions.GeneralError, exceptions.ExdLmtError):
             error = True
             failed_pulls = failed_pulls + 1
             print('A server error occurred')
@@ -235,7 +245,7 @@ def get_next_chains():
                 add_rows(clean_chain(raw_chain(chain, 'call')), 'calls')
                 pulls = pulls + 1
 
-            except (ValueError, ServerError):
+            except ValueError:
                 print(f'{x}: Calls for {stock} did not have values for this iteration')
                 failed_pulls = failed_pulls + 1
 
@@ -243,7 +253,7 @@ def get_next_chains():
                 add_rows(clean_chain(raw_chain(chain, 'put')), 'puts')
                 pulls = pulls + 1
 
-            except (ValueError, ServerError):
+            except ValueError:
                 print(f'{x}: Puts for {stock} did not have values for this iteration')
                 failed_pulls = failed_pulls + 1
 
@@ -258,7 +268,7 @@ def start():
     pull_count = 0
     end_t = 1600
 
-    while get_time_now():
+    while get_time_now() < end_t:
         get_next_chains()
         pull_count = pull_count + 1
         print(pull_count)
@@ -273,16 +283,18 @@ def start():
 
 # |SQLite management| #
 #
-#make_sqlite_table('puts')  # inputs: puts|calls
-# add_rows(clean_chain(raw_chain(get_chain('SPY'), 'put')), 'puts')  # raw_chain(,'put|call')), 'puts|calls')
+# make_sqlite_table('calls')  # inputs: puts|calls
 # delete_db_table('calls')
 # delete_db_table('puts')
-show_db_table('puts')
-show_db_table('calls')
+# show_db_table('puts')
+# show_db_table('calls')
+# add_rows(clean_chain(raw_chain(get_chain('SPY'), 'put')), 'puts')  # raw_chain(,'put|call')), 'puts|calls')
+delete_row('puts', '', 1321354652)
 
 
 def main():
     start()
     return 0
 
-#main()
+
+main()
