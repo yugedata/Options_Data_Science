@@ -17,13 +17,16 @@ a) create a developer account on this link. https://developer.tdameritrade.com/a
 b) run token_refresh.py to produce the td_state.json credentials file
 
 c) Before mining, SQLite files must be made locally.
+   i. go to the bottom of the file uncomment make_sqlite_table('calls')
+  ii. make_sqlite_table('puts')
+ iii. comment the main() on the last line
+  iv. run mine.py
 
-1--- go to the bottom of the file uncomment make_sqlite_table('calls')
-2---                                        make_sqlite_table('puts')
-3--- comment the main() on the last line
-4--- run mine.py
-
-The tables created for puts and calls are based off the wanted and unwanted                     columns. They are hard coded into arrays (wanted_columns & unwanted_columns)                     at the top of the file. To create tables with different columns move the                          column name from one array to the other, all must be accounted for in both                        lists.
+The tables created for puts and calls are based off the wanted and unwanted                     
+columns. They are hard coded into arrays (wanted_columns & unwanted_columns)                     
+at the top of the file. To create tables with different columns move the                         
+column name from one array to the other, all must be accounted for in both                   
+lists.
 
 d) Options.db should have been created in your directory with 2 Tables
 
