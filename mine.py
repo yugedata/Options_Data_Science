@@ -8,9 +8,9 @@ import sqlite3
 import time
 
 TDSession = TDClient(
-    client_id='AYGTNN1VCCC3GV7SBFAGT3SZC8AXEPBE',
+    client_id='', # insert client key
     redirect_uri='https://127.0.0.1',
-    credentials_path='/Users/Sato/Documents/PycharmProjects/open_interest/td_state.json'
+    credentials_path='' # insert ur working directory
 )
 
 TDSession.login()
