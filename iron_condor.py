@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey
+from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, REAL
 from sqlalchemy.sql import text
 from sqlalchemy import inspect
 import matplotlib as plt
@@ -10,8 +10,16 @@ buying_power = 50000
 
 cart = []
 
-columns = ['trade_id', 'openClose', 'time', 'contracts', 'quantities',
-           'prices', 'total', 'debitCredit', 'width']
+columns = ['trade_id', 'openClose', 'time', 'daysLeft', 'outsideCall', 'insideCall',
+           'insidePut', 'outsidePut', 'quantity', 'costOutCall', 'costInCall',
+           'costInPut', 'costOutPut', 'total', 'debitCredit', 'width']
+
+stocks = ['AAPL', 'AMZN', 'SPY', 'AMD', 'NVDA', 'NFLX', 'QQQ', 'ROKU']
+
+current_data = []
+
+for s in stocks:
+    current_data.append(s)
 
 
 def make_sqlite_table(table_name):
@@ -21,10 +29,17 @@ def make_sqlite_table(table_name):
                    Column('trade_id', Integer),
                    Column('openClose', Integer),
                    Column('time', Integer),
-                   Column('contracts', String),   # tuple
-                   Column('quantities', String),  # tuple
-                   Column('prices', String),      # tuple
-                   Column('total', Integer),      # total of prices
+                   Column('daysLeft', Integer),
+                   Column('outsideCall', String),
+                   Column('insideCall', String),
+                   Column('insidePut', String),
+                   Column('outsidePut', String),
+                   Column('quantity', Integer),
+                   Column('costOutCall', REAL),
+                   Column('costInCall', REAL),
+                   Column('costInPut', REAL),
+                   Column('costOutPut', REAL),
+                   Column('total', Integer),
                    Column('debitCredit', Integer),
                    Column('width', Integer))
 
@@ -67,22 +82,44 @@ def delete_row(table_name, column, argument):
     return 0
 
 
-test_data = [[123, 1, 12321321321, f'(AAPL_121120P123, AAPL_121120P123, AAPL_121120P123, AAPL_121120P123)',
-              f'(1, 1, 1, 1)', f'(100, 50, 110, 60)', 90, -90, 8]]
+def buy_call(symbol, strikePrice, ask, quoteTimeInLong):
+
+    return 0
+
+
+def buy_put(symbol, strikePrice, ask, quoteTimeInLong):
+
+    return 0
+
+
+def sell_call(symbol, strikePrice, bid, quoteTimeInLong):
+
+    return 0
+
+
+def sell_put(symbol, strikePrice, bid, quoteTimeInLong):
+
+    return 0
+
+
+def open_iron_condor():
+
+    return 0
+
+
+def close_iron_condor():
+
+    return 0
+
+
+test_data = [[123, 1, 12321321321, 5, 110, 100, 90, 80, 1, 8.36, -10.30, -12.50,
+             9.20, -4.30, 0, 10]]
 
 test_data = pd.DataFrame(test_data, columns=columns)
 
-make_sqlite_table('iron_condors')
+# make_sqlite_table('iron_condors')
 add_rows(test_data, 'iron_condors')
 show_table('iron_condors')
 
 
-# this func will act as a checkout cart, outputting the combination
-# of contracts needed to buy/sell to create the explicit option spread
-# output: tuple with only strings of contract(s) symbol/id
-def basket():
-
-    global cart
-
-    return cart
 
