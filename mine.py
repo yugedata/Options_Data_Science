@@ -7,10 +7,11 @@ import pandas as pd
 import sqlite3
 import time
 
+
 TDSession = TDClient(
-    client_id='', # insert client key
+    client_id='AYGTNN1VCCC3GV7SBFAGT3SZC8AXEPBE',
     redirect_uri='https://127.0.0.1',
-    credentials_path='' # insert ur working directory
+    credentials_path='/Users/Sato/Documents/PycharmProjects/open_interest/td_state.json'
 )
 
 TDSession.login()
@@ -69,14 +70,32 @@ def stats_list():
 # test_quote_time_epoch = test_quotes_2D['AMD']['regularMarketTradeTimeInLong']
 # human_time(test_quote_time_epoch)
 
+trade_days_2021 = [[4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 19, 20, 21, 22, 25, 26, 27, 28, 29],
+                   [1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 16, 17, 18, 19, 22, 23, 24, 25, 26],
+                   [1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23, 24, 25, 26, 29, 30, 31],
+                   [5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 26, 27, 28, 29, 30],
+                   [3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 17, 18, 19, 20, 21, 24, 25, 26, 27, 28],
+                   [1, 2, 3, 4, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 28, 29, 30],
+                   [1, 2, 6, 7, 8, 9, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 26, 27, 28, 29, 30],
+                   [2, 3, 4, 5, 6, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 23, 24, 25, 26, 27, 30, 31],
+                   [1, 2, 3, 7, 8, 9, 10, 13, 14, 15, 16, 17, 20, 21, 22, 23, 24, 27, 28, 29, 30],
+                   [1, 4, 5, 6, 7, 8, 12, 13, 14, 15, 18, 19, 20, 21, 22, 25, 26, 27, 28, 29],
+                   [1, 2, 3, 4, 5, 8, 9, 10, 12, 15, 16, 17, 18, 19, 22, 23, 24, 29, 30],
+                   [1, 2, 3, 6, 7, 8, 9, 10, 13, 14, 15, 16, 17, 20, 21, 22, 27, 28, 29, 30]]
+month, day = 0, 10
+# if get_time_now()
+
+today = trade_days_2021[month][day]
 
 opt_column_names = ['putCall', 'symbol', 'description', 'exchangeName', 'bid', 'ask', 'last', 'mark', 'bidSize',
                     'askSize', 'bidAskSize', 'lastSize', 'highPrice', 'lowPrice', 'openPrice', 'closePrice',
                     'totalVolume', 'tradeDate', 'tradeTimeInLong', 'quoteTimeInLong', 'netChange', 'volatility',
                     'delta', 'gamma', 'theta', 'vega', 'rho', 'openInterest', 'timeValue', 'theoreticalOptionValue',
-                    'theoreticalVolatility', 'optionDeliverablesList', 'strikePrice', 'expirationDate', 'daysToExpiration',
+                    'theoreticalVolatility', 'optionDeliverablesList', 'strikePrice', 'expirationDate',
+                    'daysToExpiration',
                     'expirationType', 'lastTradingDay', 'multiplier', 'settlementType', 'deliverableNote',
-                    'isIndexOption', 'percentChange', 'markChange', 'markPercentChange', 'mini', 'inTheMoney', 'nonStandard']
+                    'isIndexOption', 'percentChange', 'markChange', 'markPercentChange', 'mini', 'inTheMoney',
+                    'nonStandard']
 
 columns_unwanted = ['description', 'mark', 'bidSize', 'askSize', 'bidAskSize', 'lastSize', 'tradeDate',
                     'tradeTimeInLong', 'theoreticalOptionValue', 'optionDeliverablesList',
@@ -86,7 +105,7 @@ columns_unwanted = ['description', 'mark', 'bidSize', 'askSize', 'bidAskSize', '
 columns_wanted = ['putCall', 'symbol', 'exchangeName', 'bid', 'ask', 'last', 'highPrice',
                   'lowPrice', 'openPrice', 'closePrice', 'totalVolume', 'quoteTimeInLong',
                   'netChange', 'volatility', 'delta', 'gamma', 'theta', 'vega', 'rho', 'openInterest', 'timeValue',
-                  'theoreticalVolatility', 'strikePrice', 'expirationDate', 'daysToExpiration',  'percentChange']
+                  'theoreticalVolatility', 'strikePrice', 'expirationDate', 'daysToExpiration', 'percentChange']
 
 stocks = ['AAL', 'AAPL', 'AMD', 'AMZN', 'APA', 'ATVI', 'AXP', 'BABA', 'BAC', 'BUD', 'C', 'CAT',
           'CME', 'CMG', 'CSCO', 'DAL', 'DIS', 'EA', 'FB', 'GOOG', 'GS', 'HD', 'IBM', 'JNJ', 'JPM',
@@ -122,6 +141,8 @@ for i in opt_column_names:
         if i == j:
             outs.append(i)
 '''
+
+
 # print(outs)
 # print(len(outs))
 # unique_list(outs)
@@ -132,7 +153,7 @@ for i in opt_column_names:
 def get_chain(stock):
     opt_lookup = TDSession.get_options_chain(
         option_chain={'symbol': stock, 'strikeCount': 50,
-                      'toDate': '2021-2-28'})
+                      'toDate': '2021-3-26'})
 
     return opt_lookup
 
@@ -184,7 +205,6 @@ def make_sqlite_table(table_name):
     return 0
 
 
-#
 def add_rows(clean_data, table_name):
     engine = create_engine('sqlite:///Options.db', echo=False)
     clean_data.to_sql(table_name, con=engine, if_exists='append', index_label='index')
@@ -193,7 +213,7 @@ def add_rows(clean_data, table_name):
 
 
 def delete_row(table_name, column, argument):
-    conn = sqlite3.connect('options.db')
+    conn = sqlite3.connect('Options.db')
     con = conn.cursor()
     con.execute(f'DELETE FROM {table_name} WHERE {column}={argument}')
     conn.commit()
@@ -284,15 +304,19 @@ def start():
 # |SQLite management| #
 #
 # make_sqlite_table('calls')  # inputs: puts|calls
+# make_sqlite_table('puts')  # inputs: puts|calls
 # delete_db_table('calls')
 # delete_db_table('puts')
-# show_db_table('puts')
 # show_db_table('calls')
+# show_db_table('puts')
 # add_rows(clean_chain(raw_chain(get_chain('SPY'), 'put')), 'puts')  # raw_chain(,'put|call')), 'puts|calls')
-delete_row('puts', '', 1321354652)
+# delete_row('puts', '', 1321354652)
 
 
 def main():
+    while get_time_now() < 930:
+        print(f'{get_time_now()}: Market closed.')
+        time.sleep(5)
     start()
     return 0
 
