@@ -17,23 +17,6 @@ TDSession = TDClient(
 TDSession.login()
 
 
-def human_time(epoch):
-    new_time = datetime.fromtimestamp(int(epoch) / 1000)
-    output = new_time.strftime('%Y-%m-%d %H:%M:%S')
-
-    return output
-
-
-def get_time_now():
-    curr_time = time.localtime()
-    curr_clock = time.strftime("%H:%M:%S", curr_time)
-    curr_y_m_d = time.strftime('%m%d%Y')
-
-    int_curr_clock = int(f'{curr_clock[:2]}{curr_clock[3:5]}')
-
-    return int_curr_clock, curr_y_m_d
-
-
 def history(symbol):
     quotes = TDClient.get_price_history(TDSession, symbol=symbol, period_type='day',
                                         period=1, frequency_type='minute', frequency=1,
@@ -68,8 +51,7 @@ def stats_list():
     return output_stats
 '''
 
-# test_quote_time_epoch = test_quotes_2D['AMD']['regularMarketTradeTimeInLong']
-# human_time(test_quote_time_epoch)
+file_date = 0
 
 trade_days_2021 = {'jan': [4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 19, 20, 21, 22, 25, 26, 27, 28, 29],
                    'feb': [1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 16, 17, 18, 19, 22, 23, 24, 25, 26],
@@ -148,6 +130,24 @@ for i in opt_column_names:
 # \/
 
 
+def human_time(epoch):
+    new_time = datetime.fromtimestamp(int(epoch) / 1000)
+    output = new_time.strftime('%Y-%m-%d %H:%M:%S')
+
+    return output
+
+
+def get_time_now():
+    curr_time = time.localtime()
+    curr_clock = time.strftime("%H:%M:%S", curr_time)
+    curr_m = time.strftime('%m')
+    curr_y_d = time.strftime('%d%Y')
+
+    int_curr_clock = int(f'{curr_clock[:2]}{curr_clock[3:5]}')
+
+    return int_curr_clock, curr_m, curr_y_d
+
+
 def get_chain(stock):
     opt_lookup = TDSession.get_options_chain(
         option_chain={'symbol': stock, 'strikeCount': 50,
@@ -156,7 +156,10 @@ def get_chain(stock):
     return opt_lookup
 
 
-'''
+''' Testing
+test_quote_time_epoch = test_quotes_2D['AMD']['regularMarketTradeTimeInLong']
+human_time(test_quote_time_epoch)
+
 def narrow_print():
     opt_lookup = get_chain('SPY')
     narrow = opt_lookup['putExpDateMap']['2020-11-27:1']['363.0'][0]
@@ -204,7 +207,7 @@ def make_sqlite_table(table_name):
 
 
 def add_rows(clean_data, table_name):
-    engine = create_engine('sqlite:///Options.db', echo=False)
+    engine = create_engine(f'sqlite:///Options_{file_date}.db', echo=False)
     clean_data.to_sql(table_name, con=engine, if_exists='append', index_label='index')
 
     return 0
@@ -245,9 +248,9 @@ failed_pulls = 0
 
 
 def get_next_chains():
-    x = 0
     global pulls
     global failed_pulls
+    x = 0
 
     for stock in stocks:
         error = False
@@ -282,24 +285,7 @@ def get_next_chains():
     return 0
 
 
-def start():
-    pull_count = 0
-    end_t = 1600
-
-    while get_time_now() < end_t:
-        get_next_chains()
-        pull_count = pull_count + 1
-        print(pull_count)
-
-    print('option market closed')
-
-    print(f'failed_pulls: {failed_pulls}')
-    print(f'pulls: {pulls}')
-
-    return 0
-
-
-# |SQLite management| #
+# |SQLite testing| #
 #
 # make_sqlite_table('calls')  # inputs: puts|calls
 # make_sqlite_table('puts')  # inputs: puts|calls
@@ -312,13 +298,30 @@ def start():
 
 
 def main():
+
+    global file_date
+
+    t, mon, day = get_time_now()
+    mon = list(trade_days_2021.keys())[int(mon) - 1]
+    file_date = f'{mon}{day}'
+
     while True:
-        t, day = get_time_now()
         if (t < 930) or (t > 1600):
-            print(f'{t}: Market closed. {day}')
+            print(f'{t}: Market closed. {mon}{day}')
             time.sleep(5)
 
-    start()
+    pull_count = 0
+    end_t = 1600
+
+    while get_time_now() < end_t:
+        get_next_chains()
+        pull_count = pull_count + 1
+        print(pull_count)
+
+    print('options market closed')
+    print(f'failed_pulls: {failed_pulls}')
+    print(f'pulls: {pulls}')
+
     return 0
 
 
