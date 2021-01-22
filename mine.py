@@ -207,6 +207,7 @@ def make_sqlite_table(table_name):
 
 
 def add_rows(clean_data, table_name):
+    global file_date
     engine = create_engine(f'sqlite:///Options_{file_date}.db', echo=False)
     clean_data.to_sql(table_name, con=engine, if_exists='append', index_label='index')
 
@@ -248,9 +249,9 @@ failed_pulls = 0
 
 
 def get_next_chains():
+    x = 0
     global pulls
     global failed_pulls
-    x = 0
 
     for stock in stocks:
         error = False
@@ -285,7 +286,7 @@ def get_next_chains():
     return 0
 
 
-# |SQLite testing| #
+# |SQLite management| #
 #
 # make_sqlite_table('calls')  # inputs: puts|calls
 # make_sqlite_table('puts')  # inputs: puts|calls
@@ -303,22 +304,24 @@ def main():
 
     t, mon, day = get_time_now()
     mon = list(trade_days_2021.keys())[int(mon) - 1]
-    file_date = f'{mon}{day}'
 
     while True:
         if (t < 930) or (t > 1600):
             print(f'{t}: Market closed. {mon}{day}')
             time.sleep(5)
+        else:
+            break
 
+    file_date = f'{mon}{day}'
     pull_count = 0
     end_t = 1600
 
-    while get_time_now() < end_t:
+    while get_time_now()[0] < end_t:
         get_next_chains()
         pull_count = pull_count + 1
         print(pull_count)
 
-    print('options market closed')
+    print('option market closed')
     print(f'failed_pulls: {failed_pulls}')
     print(f'pulls: {pulls}')
 
