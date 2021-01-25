@@ -5,6 +5,8 @@ from sqlalchemy import inspect
 import matplotlib as plt
 import pandas as pd
 
+# full program is hidden, contact me for sample trader
+
 
 buying_power = 50000
 
