@@ -307,7 +307,7 @@ def main():
 
     while True:
         if (t < 930) or (t > 1600):
-            print(f'{t}: Market closed. {mon}{day}')
+            print(f'{t}: Market closed {mon}{day}'.upper())
             time.sleep(5)
         else:
             break
