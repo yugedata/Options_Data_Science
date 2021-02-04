@@ -9,6 +9,53 @@ import sqlite3
 import time
 print("- Modules imported -")
 
+
+def make_sqlite_table(table_name):
+    engine = create_engine('sqlite:///Options_temp.db', echo=False)
+    table_columns = pd.DataFrame(columns=columns_wanted)
+    table_columns.to_sql(table_name, con=engine)
+
+    return 0
+
+
+def add_rows(clean_data, table_name):
+    global file_date
+    engine = create_engine(f'sqlite:///Options_{file_date}.db', echo=False)
+    clean_data.to_sql(table_name, con=engine, if_exists='append', index_label='index')
+
+    return 0
+
+
+def delete_row(table_name, column, argument):
+    conn = sqlite3.connect('Options.db')
+    con = conn.cursor()
+    con.execute(f'DELETE FROM {table_name} WHERE {column}={argument}')
+    conn.commit()
+    conn.close()
+
+    return 0
+
+
+def delete_db_table(table_name):
+    conn = sqlite3.connect('options.db')
+    con = conn.cursor()
+    con.execute(f'DROP TABLE {table_name}')
+    conn.commit()
+    conn.close()
+
+    return 0
+
+
+def show_db_table(puts_calls):
+    conn = sqlite3.connect('options.db')
+    con = conn.cursor()
+    for row in con.execute(f'SELECT * FROM {puts_calls}'):
+        print(row)
+    conn.close()
+
+    return 0
+
+
 TDSession = TDClient(
     client_id='AYGTNN1VCCC3GV7SBFAGT3SZC8AXEPBE',
     redirect_uri='https://127.0.0.1',
@@ -28,12 +75,12 @@ def history(symbol):
     return quotes
 
 
-cur_weekly =  0
+cur_weekly = 0
 cur_stocks = ['AAPL']
 
 
-def get_weekly(clean):
-# get data for just the stuff we want to use
+def get_weekly_data(clean):
+    # get data for just the stuff we want to use
     for r in clean.iterrows():
         if r[1][-2] == 'symbol':
             print(r[1])
@@ -145,7 +192,6 @@ print(outs)
 print(len(outs))
 unique_list(outs)
 '''
-#
 
 
 def human_time(epoch):
@@ -172,19 +218,6 @@ def get_chain(stock):
                       'toDate': '2021-4-23'})
 
     return opt_lookup
-
-
-''' Testing
-test_quote_time_epoch = test_quotes_2D['AMD']['regularMarketTradeTimeInLong']
-human_time(test_quote_time_epoch)
-
-def narrow_print():
-    opt_lookup = get_chain('SPY')
-    narrow = opt_lookup['putExpDateMap']['2020-11-27:1']['363.0'][0]
-    for m in narrow.keys():
-        print(m, narrow[m])
-    return 0
-'''
 
 
 def raw_chain(raw, put_call):
@@ -218,52 +251,6 @@ def clean_chain(raw):
     return clean
 
 
-def make_sqlite_table(table_name):
-    engine = create_engine('sqlite:///Options_temp.db', echo=False)
-    table_columns = pd.DataFrame(columns=columns_wanted)
-    table_columns.to_sql(table_name, con=engine)
-
-    return 0
-
-
-def add_rows(clean_data, table_name):
-    global file_date
-    engine = create_engine(f'sqlite:///Options_{file_date}.db', echo=False)
-    clean_data.to_sql(table_name, con=engine, if_exists='append', index_label='index')
-
-    return 0
-
-
-def delete_row(table_name, column, argument):
-    conn = sqlite3.connect('Options.db')
-    con = conn.cursor()
-    con.execute(f'DELETE FROM {table_name} WHERE {column}={argument}')
-    conn.commit()
-    conn.close()
-
-    return 0
-
-
-def delete_db_table(table_name):
-    conn = sqlite3.connect('options.db')
-    con = conn.cursor()
-    con.execute(f'DROP TABLE {table_name}')
-    conn.commit()
-    conn.close()
-
-    return 0
-
-
-def show_db_table(puts_calls):
-    conn = sqlite3.connect('options.db')
-    con = conn.cursor()
-    for row in con.execute(f'SELECT * FROM {puts_calls}'):
-        print(row)
-    conn.close()
-
-    return 0
-
-
 pulls = 0
 failed_pulls = 0
 
@@ -291,7 +278,7 @@ def get_next_chains():
                 add_rows(clean, 'calls')
                 for s in cur_stocks:
                     if s == stock:
-                        get_weekly(clean)
+                        get_weekly_data(clean)
                 pulls = pulls + 1
 
             except ValueError:
@@ -333,14 +320,14 @@ def main():
 
     t, mon, day = get_time_now()
     mon = list(trade_days_2021.keys())[int(mon) - 1]
-
+    '''  # uncomment for LIVE
     while True:
         if (t < 930) or (t > 1600):
-            break  # uncomment for TESTING
             print(f'{t}: Market closed {mon}{day}'.upper())
             time.sleep(10)
         else:
             break
+    '''
     # uncomment below line when TESTING on live data
     file_date = f'temp.db'
     # uncomment below line to save and analyze live data
@@ -349,7 +336,7 @@ def main():
     pull_count = 0
     end_t = 1600
 
-    while get_time_now()[0] < end_t:
+    while get_time_now()[0]:  # < end_t: insert segment to run LIVE
         get_next_chains()
         pull_count = pull_count + 1
         print(pull_count)
