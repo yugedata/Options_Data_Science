@@ -20,7 +20,7 @@ def make_sqlite_table(table_name):
 
 def add_rows(clean_data, table_name):
     global file_date
-    engine = create_engine(f'sqlite:///Options_{file_date}.db', echo=False)
+    engine = create_engine(f'sqlite:///Data/Options_{file_date}.db', echo=False)
     clean_data.to_sql(table_name, con=engine, if_exists='append', index_label='index')
 
     return 0
@@ -66,6 +66,24 @@ TDSession.login()
 print("- TD connection made -")
 
 
+def human_time(epoch):
+    new_time = datetime.fromtimestamp(int(epoch) / 1000)
+    output = new_time.strftime('%Y-%m-%d %H:%M:%S')
+
+    return output
+
+
+def get_time_now():
+    curr_time = time.localtime()
+    curr_clock = time.strftime("%H:%M:%S", curr_time)
+    curr_m = time.strftime('%m')
+    curr_y_d = time.strftime('%d%Y')
+
+    int_curr_clock = int(f'{curr_clock[:2]}{curr_clock[3:5]}')
+
+    return int_curr_clock, curr_m, curr_y_d
+
+
 def history(symbol):
     quotes = TDClient.get_price_history(TDSession, symbol=symbol, period_type='day',
                                         period=1, frequency_type='minute', frequency=1,
@@ -77,18 +95,6 @@ def history(symbol):
 
 cur_weekly = 0
 cur_stocks = ['AAPL']
-
-
-def get_weekly_data(clean):
-    # get data for just the stuff we want to use
-    for r in clean.iterrows():
-        if r[1][-2] == 'symbol':
-            print(r[1])
-        if r[0] == 'bid':
-            print(r[1])
-        print(r[1][2])
-
-    return 0
 
 
 '''
@@ -192,24 +198,34 @@ print(outs)
 print(len(outs))
 unique_list(outs)
 '''
+trade_stocks = ['AAPL', 'SPY', 'ROKU', 'TSLA', 'GME']
 
 
-def human_time(epoch):
-    new_time = datetime.fromtimestamp(int(epoch) / 1000)
-    output = new_time.strftime('%Y-%m-%d %H:%M:%S')
+def get_weekly_data(clean):
+    # get data for just the stuff we want to use
+    for r in clean.iterrows():
+        if r[1][-2] == 'symbol':
+            print(r[1])
+        if r[0] == 'bid':
+            print(r[1])
+        print(r[1][2])
 
-    return output
+    return 0
 
 
-def get_time_now():
-    curr_time = time.localtime()
-    curr_clock = time.strftime("%H:%M:%S", curr_time)
-    curr_m = time.strftime('%m')
-    curr_y_d = time.strftime('%d%Y')
+def get_stock(stock):  # pass an array of ticker(s) for stock
+    stock_lookup = TDSession.get_quotes(instruments=stock)
 
-    int_curr_clock = int(f'{curr_clock[:2]}{curr_clock[3:5]}')
+    return stock_lookup
 
-    return int_curr_clock, curr_m, curr_y_d
+
+def raw_stock(raw):
+    return 0
+
+
+def get_next_stock():
+
+    return 0
 
 
 def get_chain(stock):
@@ -222,7 +238,7 @@ def get_chain(stock):
 
 def raw_chain(raw, put_call):
     cp = f'{put_call}ExpDateMap'
-    raw_data = [[]]
+    clean_data = [[]]
     r = -1
     for k in raw[cp].keys():
         # print(k, raw[k], '\n')
@@ -235,20 +251,20 @@ def raw_chain(raw, put_call):
                 if unit == put_call.upper():
                     r = r + 1
                     if r > 0:
-                        raw_data.append([])
+                        clean_data.append([])
 
-                raw_data[r].append(unit)
+                clean_data[r].append(unit)
 
-    return raw_data
+    return clean_data
 
 
-def clean_chain(raw):
+def clean_chain(clean):
     global cur_weekly
 
-    df_cp = pd.DataFrame(raw, columns=opt_column_names)
-    clean = df_cp.drop(columns=columns_unwanted)
+    df_cp = pd.DataFrame(clean, columns=opt_column_names)
+    panda_data = df_cp.drop(columns=columns_unwanted)
 
-    return clean
+    return panda_data
 
 
 pulls = 0
@@ -317,6 +333,7 @@ def get_next_chains():
 def main():
 
     global file_date
+    global trade_stocks
 
     t, mon, day = get_time_now()
     mon = list(trade_days_2021.keys())[int(mon) - 1]
@@ -329,7 +346,7 @@ def main():
             break
     '''
     # uncomment below line when TESTING on live data
-    file_date = f'temp.db'
+    file_date = f'temp'
     # uncomment below line to save and analyze live data
     # file_date = f'{mon}{day}'
 
@@ -337,6 +354,7 @@ def main():
     end_t = 1600
 
     while get_time_now()[0]:  # < end_t: insert segment to run LIVE
+        print(get_next_stock(get_stock(trade_stocks)))
         get_next_chains()
         pull_count = pull_count + 1
         print(pull_count)
