@@ -87,10 +87,10 @@ columns_wanted = ['putCall', 'symbol', 'exchangeName', 'bid', 'ask', 'last', 'hi
                   'netChange', 'volatility', 'delta', 'gamma', 'theta', 'vega', 'rho', 'openInterest', 'timeValue',
                   'theoreticalVolatility', 'strikePrice', 'expirationDate', 'daysToExpiration', 'percentChange']
 
-stocks = ['AAL', 'AAPL', 'AMD', 'AMZN', 'APA', 'ATVI', 'AXP', 'BABA', 'BAC', 'BUD', 'C', 'CAT',
-          'CME', 'CMG', 'CSCO', 'DAL', 'DIS', 'EA', 'FB', 'GOOG', 'GS', 'HD', 'IBM', 'JNJ', 'JPM',
-          'MCD', 'MSFT', 'MU', 'NEE', 'NFLX', 'NVDA', 'ORCL', 'PEP', 'PYPL', 'QQQ', 'ROKU', 'SBUX',
-          'SNAP', 'SPY', 'SQ', 'TSLA', 'TWTR', 'ULTA', 'UPS', 'V', 'VXX', 'WMT', 'YUM',
+stocks = ['AAL', 'AAPL', 'AMD', 'AMZN', 'APA', 'ATVI', 'AXP', 'BABA', 'BAC', 'C',
+          'CME', 'CMG', 'DAL', 'EA', 'FB', 'GOOG', 'GS', 'HD', 'IBM', 'JNJ', 'JPM',
+          'MCD', 'MSFT', 'MU', 'NEE', 'NFLX', 'NVDA', 'ORCL', 'PYPL', 'QQQ', 'ROKU',
+          'SNAP', 'SPY', 'SQ', 'TSLA', 'TWTR', 'ULTA', 'UPS', 'V', 'VXX',
           'VDE', 'XLB', 'XLI', 'VCR', 'VDC', 'XLV', 'XLF', 'VGT', 'XLC', 'XLU', 'VNQ']
 
 # print(len(opt_column_names))
@@ -208,7 +208,7 @@ def make_sqlite_table(table_name):
 
 def add_rows(clean_data, table_name):
     global file_date
-    engine = create_engine(f'sqlite:///Options_{file_date}.db', echo=False)
+    engine = create_engine(f'sqlite:///Data/Options_{file_date}.db', echo=False)
     clean_data.to_sql(table_name, con=engine, if_exists='append', index_label='index')
 
     return 0
@@ -308,7 +308,7 @@ def main():
     while True:
         if (t < 930) or (t > 1600):
             print(f'{t}: Market closed {mon}{day}'.upper())
-            time.sleep(5)
+            time.sleep(15)
         else:
             break
 
