@@ -6,10 +6,10 @@ import datetime
 import pandas as pd
 import sqlite3
 import time
-
+import credentials
 
 TDSession = TDClient(
-    client_id='AYGTNN1VCCC3GV7SBFAGT3SZC8AXEPBE',
+    client_id=credentials.client_id,
     redirect_uri='https://127.0.0.1',
     credentials_path='/Users/Sato/Documents/PycharmProjects/open_interest/td_state.json'
 )
@@ -27,7 +27,7 @@ def history(symbol):
 
 
 def make_sqlite_table(table_name):
-    engine = create_engine('sqlite:///Options.db', echo=False)
+    engine = create_engine('sqlite:///Data/Options.db', echo=False)
     table_columns = pd.DataFrame(columns=columns_wanted)
     table_columns.to_sql(table_name, con=engine)
 
@@ -146,13 +146,11 @@ def raw_chain(raw, put_call):
     raw_data = [[]]
     r = -1
     for k in raw[cp].keys():
-        # print(k, raw[k], '\n')
         for strike in raw[cp][k].keys():
-            # print(strike, raw[k][strike])
-            for a in raw[cp][k][strike][0].keys():
+            for attr in raw[cp][k][strike][0].keys():
                 # if r == -1:
                 #    print(raw[cp][k][strike][0].keys())
-                unit = raw[cp][k][strike][0][a]
+                unit = raw[cp][k][strike][0][attr]
                 if unit == put_call.upper():
                     r = r + 1
                     if r > 0:
@@ -212,18 +210,6 @@ def get_next_chains():
     return 0
 
 
-# |SQLite management| #
-#
-# make_sqlite_table('calls')  # inputs: puts|calls
-# make_sqlite_table('puts')  # inputs: puts|calls
-# delete_db_table('calls')
-# delete_db_table('puts')
-# show_db_table('calls')
-# show_db_table('puts')
-# add_rows(clean_chain(raw_chain(get_chain('SPY'), 'put')), 'puts')  # raw_chain(,'put|call')), 'puts|calls')
-# delete_row('puts', '', 1321354652)
-
-
 def main():
 
     global file_date
@@ -255,3 +241,15 @@ def main():
 
 
 main()
+
+
+# |SQLite management| #
+#
+# make_sqlite_table('calls')  # inputs: puts|calls
+# make_sqlite_table('puts')  # inputs: puts|calls
+# delete_db_table('calls')
+# delete_db_table('puts')
+# show_db_table('calls')
+# show_db_table('puts')
+# add_rows(clean_chain(raw_chain(get_chain('SPY'), 'put')), 'puts')  # raw_chain(,'put|call')), 'puts|calls')
+# delete_row('puts', '', 1321354652)
