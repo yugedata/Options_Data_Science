@@ -2,7 +2,6 @@ Options_Data_Science
 
 Disclosure: 1. Most files in this repo are under maintenance, 
                REFER only to mine.py, make_files.py, token_refresh.py 
-               
             2. If you want stock data simultanously, run test_trade.py. it is not finished though
 
 Description: 
