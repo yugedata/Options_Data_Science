@@ -7,6 +7,7 @@ import datetime
 import pandas as pd
 import sqlite3
 import time
+import credentials
 
 print("- Modules imported -")
 
@@ -58,7 +59,7 @@ def show_db_table(puts_calls):
 
 
 TDSession = TDClient(
-    client_id='AYGTNN1VCCC3GV7SBFAGT3SZC8AXEPBE',
+    client_id=credentials.client_id,
     redirect_uri='https://127.0.0.1',
     credentials_path='/Users/Sato/Documents/PycharmProjects/open_interest/td_state.json'
 )
@@ -405,4 +406,3 @@ def main():
 
 
 main()
-
