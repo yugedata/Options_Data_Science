@@ -7,6 +7,8 @@ import datetime
 import pandas as pd
 import sqlite3
 import time
+import credentials
+
 print("- Modules imported -")
 
 
@@ -57,7 +59,7 @@ def show_db_table(puts_calls):
 
 
 TDSession = TDClient(
-    client_id='AYGTNN1VCCC3GV7SBFAGT3SZC8AXEPBE',
+    client_id=credentials.client_id,
     redirect_uri='https://127.0.0.1',
     credentials_path='/Users/Sato/Documents/PycharmProjects/open_interest/td_state.json'
 )
@@ -95,7 +97,6 @@ def history(symbol):
 
 cur_weekly = 0
 cur_stocks = ['AAPL']
-
 
 '''
 test_quotes_2D = TDClient.get_quotes(TDSession, instruments=['AMD', 'AAPL'])
@@ -137,7 +138,6 @@ trade_days_2021 = {'jan': [4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 19, 20, 21, 22, 25
                    'nov': [1, 2, 3, 4, 5, 8, 9, 10, 12, 15, 16, 17, 18, 19, 22, 23, 24, 29, 30],
                    'dec': [1, 2, 3, 6, 7, 8, 9, 10, 13, 14, 15, 16, 17, 20, 21, 22, 27, 28, 29, 30]}
 
-
 opt_column_names = ['putCall', 'symbol', 'description', 'exchangeName', 'bid', 'ask', 'last', 'mark', 'bidSize',
                     'askSize', 'bidAskSize', 'lastSize', 'highPrice', 'lowPrice', 'openPrice', 'closePrice',
                     'totalVolume', 'tradeDate', 'tradeTimeInLong', 'quoteTimeInLong', 'netChange', 'volatility',
@@ -163,7 +163,6 @@ stocks = ['AAL', 'AAPL', 'AMD', 'AMZN', 'APA', 'ATVI', 'AXP', 'BABA', 'CME', 'CM
           'MCD', 'MSFT', 'MU', 'NEE', 'NFLX', 'NVDA', 'ORCL', 'PEP', 'PYPL', 'QQQ', 'ROKU', 'SBUX',
           'SNAP', 'SPY', 'SQ', 'TSLA', 'TWTR', 'ULTA', 'UPS', 'V', 'VXX', 'WMT', 'YUM',
           'VDE', 'XLB', 'XLI', 'VCR', 'VDC', 'XLV', 'XLF', 'VGT', 'XLC', 'XLU', 'VNQ']
-
 
 # This segment was used to sort out unique columns after i hard coded the columns i wanted
 '''
@@ -220,11 +219,47 @@ def get_stock(stock):  # pass an array of ticker(s) for stock
 
 
 def raw_stock(raw):
-    return 0
+    clean_stock_data = [[]]
+
+    for i in raw.keys():
+        print(i)
+
+    return clean_stock_data
+
+
+def pandas_stock_data(arr):
+    pandas_data = []
+    return pandas_data
 
 
 def get_next_stock():
+    global pulls
+    global failed_pulls
 
+    for stock in trade_stocks:
+        error = False
+
+        try:
+            stock_data = get_stock(stock)
+
+        except (exceptions.ServerError, exceptions.GeneralError, exceptions.ExdLmtError, ConnectionError):
+            error = True
+            failed_pulls = failed_pulls + 1
+            print('A server error occurred')
+
+        if not error:
+            try:
+                clean_stock_data = pandas_stock_data(raw_stock(stock_data))
+                # add_rows(clean_stock_data) UNCOMMENT TO ADD TO STOCKS.DB
+                pulls = pulls + 1
+
+            except ValueError:
+                print(ValueError.with_traceback())
+                print(f'{stock} did not have values for this iteration')
+                failed_pulls = failed_pulls + 1
+
+        print(stock)
+        time.sleep(1)
     return 0
 
 
@@ -258,8 +293,7 @@ def raw_chain(raw, put_call):
     return clean_data
 
 
-def clean_chain(clean):
-    global cur_weekly
+def pandas_chain(clean):
 
     df_cp = pd.DataFrame(clean, columns=opt_column_names)
     panda_data = df_cp.drop(columns=columns_unwanted)
@@ -278,8 +312,8 @@ def get_next_chains():
     global cur_stocks
 
     for stock in stocks:
-
         error = False
+
         try:
             chain = get_chain(stock)
 
@@ -290,7 +324,7 @@ def get_next_chains():
 
         if not error:
             try:
-                clean = clean_chain(raw_chain(chain, 'call'))
+                clean = pandas_chain(raw_chain(chain, 'call'))
                 add_rows(clean, 'calls')
                 for s in cur_stocks:
                     if s == stock:
@@ -303,7 +337,7 @@ def get_next_chains():
                 failed_pulls = failed_pulls + 1
 
             try:
-                get_clean = clean_chain(raw_chain(chain, 'put'))
+                get_clean = pandas_chain(raw_chain(chain, 'put'))
                 add_rows(get_clean, 'puts')
                 pulls = pulls + 1
 
@@ -331,7 +365,6 @@ def get_next_chains():
 
 
 def main():
-
     global file_date
     global trade_stocks
 
@@ -354,7 +387,7 @@ def main():
     end_t = 1600
 
     while get_time_now()[0]:  # < end_t: insert segment to run LIVE
-        print(get_next_stock(get_stock(trade_stocks)))
+        # get_next_stock()
         get_next_chains()
         pull_count = pull_count + 1
         print(pull_count)
