@@ -15,7 +15,9 @@ Directions:
 
 a) create a developer account on this link. https://developer.tdameritrade.com/apis
 
-b) run token_refresh.py to produce the td_state.json credentials file
+b) run token_refresh.py to produce the td_state.json credentials file. 
+   YouTube video to help: skip to minute 22!!
+   https://www.youtube.com/watch?v=8N1IxYXs4e8&t=1138s&ab_channel=SigmaCoding
 
 c) Before mining, SQLite files must be made locally. In your working directory make a 'Data' folder
    Open make_files.py in your working directory and run it to produce a sqlite file for each trading
