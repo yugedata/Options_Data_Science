@@ -7,9 +7,9 @@ Disclosure:
 
 Description: 
 
-1. mining - retrieve raw options data with TD ameritrade APIs
-2. analyzing - researching trends and paper trading spreads
-3. visualizing - graphing data and trading results with matplotlib and Tableau
+1. mining - retrieve raw options data with TD ameritrade APIs - Directions bellow are for this
+2. analyzing - researching trends and paper trading spreads - not done
+3. visualizing - graphing data and trading results with matplotlib and Tableau - not done
             
 
   
@@ -29,7 +29,7 @@ c) Before mining, SQLite files must be made locally. In your working directory m
 
 * In the stocks array, edit this list to collect options for any stock you want
 
-* Inside the get_get() method, 'toDate' value is a date.
+* Inside the get_chain() method, 'toDate' value is a date.
 Change the date to pull all weekly option chains leading up to that day. 
 Make sure the date is a Friday.
 
