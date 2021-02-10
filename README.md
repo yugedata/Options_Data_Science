@@ -38,11 +38,7 @@ d) Run mine.py right before market opens. ~09:25 EST
 
 
 ** ONLY IF CREATING FILES FROM INSIDE mine.py
-The tables created for puts and calls are based off the wanted and unwanted                     
-columns. They are hard coded into arrays (wanted_columns & unwanted_columns)                     
-at the top of the file. To create tables with different columns move the                         
-column name from one array to the other, all must be accounted for in both                   
-lists.
+The tables created for puts and calls are based off the wanted and unwanted columns. They are hard coded into arrays (wanted_columns & unwanted_columns). To create tables with different columns, move the specific column name from one array to the other, all must be accounted for in both lists.
 
             
             
