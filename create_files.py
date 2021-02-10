@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 import pandas as pd
 
-years = [2021]
+years = [2020, 2021]
 
 trade_days_2021 = {'jan': [4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 19, 20, 21, 22, 25, 26, 27, 28, 29],
                    'feb': [1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 16, 17, 18, 19, 22, 23, 24, 25, 26],
