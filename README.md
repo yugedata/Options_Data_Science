@@ -39,12 +39,12 @@ Make sure the date is a Friday.
 e) Run mine.py right before market opens. ~09:25 EST
 
 
-
 ** ONLY IF CREATING FILES FROM INSIDE mine.py
 The tables created for puts and calls are based off the wanted and unwanted columns. They are hard coded into arrays (wanted_columns & unwanted_columns). To create tables with different columns, move the specific column name from one array to the other, all must be accounted for in both lists.
 
             
-            
+After getting familiar with the mine script, refer to test_trade how where to insert your own trading logic
+      
  Future addons:
  1) live trading
  2) back testing
