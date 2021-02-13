@@ -98,30 +98,6 @@ def history(symbol):
 cur_weekly = 0
 cur_stocks = ['AAPL']
 
-'''
-test_quotes_2D = TDClient.get_quotes(TDSession, instruments=['AMD', 'AAPL'])
-
-
-def stats_list():
-    stats_wanted = ['symbol', 'bidPrice', 'bidSize', 'bidId', 'askPrice', 'askId',
-                    'lastPrice', 'lastSize', 'lastId', 'openPrice', 'highPrice',
-                    'lowPrice', 'bidTick', 'closePrice', 'netChange', 'totalVolume',
-                    'quoteTimeInLong', 'tradeTimeInLong', 'exchange',
-                    'exchangeName', 'volatility',
-                    'regularMarketLastPrice', 'regularMarketNetChange',
-                    'regularMarketTradeTimeInLong', 'netPercentChangeInDouble',
-                    'markChangeInDouble', 'markPercentChangeInDouble',
-                    'regularMarketPercentChangeInDouble']
-
-    output_stats = []
-
-    for key in test_quotes_2D['AMD'].keys():
-        for i in stats_wanted:
-            if key == i:
-                output_stats.append(key)
-
-    return output_stats
-'''
 
 file_date = 0
 
@@ -168,41 +144,6 @@ stocks = ['AAL', 'AAPL', 'AMD', 'AMZN', 'APA', 'ATVI', 'AXP', 'BABA', 'CME', 'CM
           'VDE', 'XLB', 'XLI', 'VCR', 'VDC', 'XLV', 'XLF', 'VGT', 'XLC', 'XLU', 'VNQ']
 
 trade_stocks = ['AAPL', 'SPY', 'ROKU', 'TSLA', 'GME']
-
-
-# This segment was used to sort out unique columns after i hard coded the columns i wanted
-'''
-# print(len(opt_column_names))
-# print(len(columns_unwanted))
-# print(len(columns_wanted))
-# print(len(stocks))
-outs = []
-
-
-def unique_list(n):
-    output = []
-
-    for x in n:
-        if x not in output:
-            output.append(x)
-        else:
-            print(x)
-    print(len(output))
-
-    return 0
-
-
-
-for i in opt_column_names:
-    for j in columns_wanted:
-        if i == j:
-            outs.append(i)
-
-
-print(outs)
-print(len(outs))
-unique_list(outs)
-'''
 
 
 def get_weekly_data(clean):
@@ -275,7 +216,7 @@ def get_next_stocks(stonks):
 def get_chain(stock):
     opt_lookup = TDSession.get_options_chain(
         option_chain={'symbol': stock, 'strikeCount': 10,
-                      'toDate': '2021-2-15'})
+                      'toDate': '2021-2-19'})
 
     return opt_lookup
 
@@ -285,12 +226,9 @@ def raw_chain(raw, put_call):
     clean_data = [[]]
     r = -1
     for k in raw[cp].keys():
-        # print(k, raw[k], '\n')
         for strike in raw[cp][k].keys():
-            # print(strike, raw[k][strike])
             for a in raw[cp][k][strike][0].keys():
-                # if r == -1:
-                #    print(raw[cp][k][strike][0].keys())
+
                 unit = raw[cp][k][strike][0][a]
                 if unit == put_call.upper():
                     r = r + 1
@@ -302,7 +240,7 @@ def raw_chain(raw, put_call):
     return clean_data
 
 
-def pandas_chain(clean):
+def clean_chain(clean):
 
     df_cp = pd.DataFrame(clean, columns=opt_column_names)
     panda_data = df_cp.drop(columns=columns_unwanted)
@@ -314,59 +252,72 @@ def get_next_chains():
     x = 0
     global pulls
     global failed_pulls
-    global cur_stocks
+
+    current_cleaned_data = [[]]
 
     for stock in stocks:
         error = False
-
         try:
             chain = get_chain(stock)
-
-        except (exceptions.ServerError, exceptions.GeneralError, exceptions.ExdLmtError, ConnectionError):
+        except (exceptions.ServerError, exceptions.GeneralError, exceptions.ExdLmtError):
             error = True
             failed_pulls = failed_pulls + 1
             print('A server error occurred')
 
         if not error:
             try:
-                clean = pandas_chain(raw_chain(chain, 'call'))
-                add_rows(clean, 'calls')
-                for s in cur_stocks:
-                    if s == stock:
-                        get_weekly_data(clean)
+                working_call_data = clean_chain(raw_chain(chain, 'call'))
+                add_rows(working_call_data, 'calls')
+
+                # print(working_call_data) UNCOMMENT to see working call data
+
                 pulls = pulls + 1
 
             except ValueError:
-                print(ValueError.with_traceback())
                 print(f'{x}: Calls for {stock} did not have values for this iteration')
                 failed_pulls = failed_pulls + 1
 
             try:
-                get_clean = pandas_chain(raw_chain(chain, 'put'))
-                add_rows(get_clean, 'puts')
+                working_put_data = clean_chain(raw_chain(chain, 'put'))
+                add_rows(working_put_data, 'puts')
+
+                # print(working_put_data) UNCOMMENT to see working put data
+
+                add_rows(clean_chain(raw_chain(chain, 'put')), 'puts')
                 pulls = pulls + 1
 
             except ValueError:
                 print(f'{x}: Puts for {stock} did not have values for this iteration')
                 failed_pulls = failed_pulls + 1
 
+            # --------------------------------------------------------------------------
+            # pseudo code for your own trading/analysis function calls
+            # --------------------------------------------------------------------------
+            ''' pseudo examples what to do with the data each iteration
+            with working_call_data:
+                check_portfolio()
+                update_portfolio_values()
+                buy_vertical_call_spread()
+                analyze_weekly_chain()
+                buy_call()
+                sell_call()
+                buy_vertical_call_spread()
+
+            with working_put_data:
+                analyze_week(create_order(iron_condor(...)))
+                submit_order(...)
+                analyze_week(get_contract_moving_avg('call', 'AAPL_021221C130'))
+                show_portfolio()
+            '''
+            # --------------------------------------------------------------------------
+            # create and call your own framework
+            # ---------------------------------------------------------------------------
+
         print(f'{x}: {stock}')
         x = x + 1
         time.sleep(2)
 
     return 0
-
-
-# |SQLite management| #
-#
-# make_sqlite_table('calls')  # inputs: puts|calls
-# make_sqlite_table('puts')  # inputs: puts|calls
-# delete_db_table('calls')
-# delete_db_table('puts')
-# show_db_table('calls')
-# show_db_table('puts')
-# add_rows(clean_chain(raw_chain(get_chain('SPY'), 'put')), 'puts')  # raw_chain(,'put|call')), 'puts|calls')
-# delete_row('puts', '', 1321354652)
 
 
 def main():
@@ -392,8 +343,8 @@ def main():
     end_t = 1600
 
     while get_time_now()[0]:  # < end_t: insert segment to run LIVE
-        get_next_stocks(trade_stocks)
-        # get_next_chains()
+
+        get_next_chains()
         pull_count = pull_count + 1
         print(pull_count)
         time.sleep(1)
@@ -406,3 +357,15 @@ def main():
 
 
 main()
+
+
+# |SQLite management| #
+#
+# make_sqlite_table('calls')  # inputs: puts|calls
+# make_sqlite_table('puts')  # inputs: puts|calls
+# delete_db_table('calls')
+# delete_db_table('puts')
+# show_db_table('calls')
+# show_db_table('puts')
+# add_rows(clean_chain(raw_chain(get_chain('SPY'), 'put')), 'puts')  # raw_chain(,'put|call')), 'puts|calls')
+# delete_row('puts', '', 1321354652)
