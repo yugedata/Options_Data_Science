@@ -11,7 +11,7 @@ import credentials
 TDSession = TDClient(
     client_id=credentials.client_id,
     redirect_uri='https://127.0.0.1',
-    credentials_path=credentials.json_path
+    credentials_path=credentials.json_path #  Users/user/.../Project/td_state.json
 )
 
 TDSession.login()
