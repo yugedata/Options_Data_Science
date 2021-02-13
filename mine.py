@@ -11,7 +11,7 @@ import credentials
 TDSession = TDClient(
     client_id=credentials.client_id,
     redirect_uri='https://127.0.0.1',
-    credentials_path='/Users/Sato/Documents/PycharmProjects/open_interest/td_state.json'
+    credentials_path=credentials.json_path
 )
 
 TDSession.login()
@@ -136,7 +136,7 @@ def get_time_now():
 def get_chain(stock):
     opt_lookup = TDSession.get_options_chain(
         option_chain={'symbol': stock, 'strikeCount': 50,
-                      'toDate': '2021-3-26'})
+                      'toDate': '2021-4-9'})
 
     return opt_lookup
 
@@ -148,8 +148,7 @@ def raw_chain(raw, put_call):
     for k in raw[cp].keys():
         for strike in raw[cp][k].keys():
             for attr in raw[cp][k][strike][0].keys():
-                # if r == -1:
-                #    print(raw[cp][k][strike][0].keys())
+
                 unit = raw[cp][k][strike][0][attr]
                 if unit == put_call.upper():
                     r = r + 1
@@ -176,6 +175,8 @@ def get_next_chains():
     x = 0
     global pulls
     global failed_pulls
+
+    current_cleaned_data = [[]]
 
     for stock in stocks:
         error = False
@@ -220,6 +221,7 @@ def main():
     while True:
         if (t < 930) or (t > 1600):
             print(f'{t}: Market closed {mon}{day}'.upper())
+
             time.sleep(15)
         else:
             break
