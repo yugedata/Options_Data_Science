@@ -18,7 +18,7 @@ Directions:
 a) create a developer account on this link. https://developer.tdameritrade.com/apis. 
 * Create/register an App
 
-b) pip install TD API wrapper called: td-ameritrade-python-api
+b) pip install td-ameritrade-python-api
 
 c) run token_refresh.py to produce the td_state.json credentials file. 
    YouTube video to help: skip to minute 22!!
