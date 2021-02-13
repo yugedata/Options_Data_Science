@@ -18,11 +18,13 @@ Directions:
 a) create a developer account on this link. https://developer.tdameritrade.com/apis. 
 * Create/register an App
 
-b) run token_refresh.py to produce the td_state.json credentials file. 
+b) pip install TD API wrapper called: td-ameritrade-python-api
+
+c) run token_refresh.py to produce the td_state.json credentials file. 
    YouTube video to help: skip to minute 22!!
    https://www.youtube.com/watch?v=8N1IxYXs4e8&t=1138s&ab_channel=SigmaCoding
 
-c) Before mining, SQLite files must be made locally. In your working directory make a 'Data' folder
+d) Before mining, SQLite files must be made locally. In your working directory make a 'Data' folder
    Open make_files.py in your working directory and run it to produce a sqlite file for each trading
    day of 2021. Add or remove different columns in the columns_wanted array in create_files.py
    In mine.py lookup up columns_unwanted, those are the options i didnt use but you can add.
@@ -34,7 +36,7 @@ c) Before mining, SQLite files must be made locally. In your working directory m
 Change the date to pull all weekly option chains leading up to that day. 
 Make sure the date is a Friday.
 
-d) Run mine.py right before market opens. ~09:25 EST
+e) Run mine.py right before market opens. ~09:25 EST
 
 
 
