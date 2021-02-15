@@ -11,7 +11,7 @@ import credentials
 TDSession = TDClient(
     client_id=credentials.client_id,
     redirect_uri='https://127.0.0.1',
-    credentials_path=credentials.json_path #  Users/user/.../Project/td_state.json
+    credentials_path=credentials.json_path
 )
 
 TDSession.login()
@@ -176,8 +176,6 @@ def get_next_chains():
     global pulls
     global failed_pulls
 
-    current_cleaned_data = [[]]
-
     for stock in stocks:
         error = False
         try:
@@ -189,7 +187,11 @@ def get_next_chains():
 
         if not error:
             try:
-                add_rows(clean_chain(raw_chain(chain, 'call')), 'calls')
+                working_call_data = clean_chain(raw_chain(chain, 'call'))
+                add_rows(working_call_data, 'calls')
+
+                # print(working_call_data) UNCOMMENT to see working call data
+
                 pulls = pulls + 1
 
             except ValueError:
@@ -197,6 +199,11 @@ def get_next_chains():
                 failed_pulls = failed_pulls + 1
 
             try:
+                working_put_data = clean_chain(raw_chain(chain, 'put'))
+                add_rows(working_put_data, 'puts')
+
+                # print(working_put_data) UNCOMMENT to see working put data
+
                 add_rows(clean_chain(raw_chain(chain, 'put')), 'puts')
                 pulls = pulls + 1
 
@@ -219,6 +226,7 @@ def main():
     mon = list(trade_days_2021.keys())[int(mon) - 1]
 
     while True:
+        t, mon, day = get_time_now()
         if (t < 930) or (t > 1600):
             print(f'{t}: Market closed {mon}{day}'.upper())
 
