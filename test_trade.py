@@ -283,7 +283,6 @@ def get_next_chains():
 
                 # print(working_put_data) UNCOMMENT to see working put data
 
-                add_rows(clean_chain(raw_chain(chain, 'put')), 'puts')
                 pulls = pulls + 1
 
             except ValueError:
