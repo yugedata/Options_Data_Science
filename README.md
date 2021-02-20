@@ -9,8 +9,8 @@ Disclosure:
 Description: 
 
 1. mining - retrieve raw options data with TD ameritrade APIs - Directions bellow are for this
-2. analyzing - researching trends and paper trading spreads - not done
-3. visualizing - graphing data and trading results with matplotlib and Tableau - not done
+2. analyzing - researching trends and paper trading spreads 
+3. visualizing - graphing data and trading results with matplotlib and Tableau
             
 
   
