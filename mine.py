@@ -222,18 +222,18 @@ def main():
     global file_date
 
     t, mon, day = get_time_now()
-    mon = list(trade_days_2021.keys())[int(mon) - 1]
+    month = list(trade_days_2021.keys())[int(mon) - 1]
 
     while True:
         t, mon, day = get_time_now()
         if (t < 930) or (t > 1600):
-            print(f'{t}: Market closed {mon}{day}'.upper())
+            print(f'{t}: Market closed {month}{day}'.upper())
 
             time.sleep(15)
         else:
             break
 
-    file_date = f'{mon}{day}'
+    file_date = f'{month}{day}'
     pull_count = 0
     end_t = 1600
 
