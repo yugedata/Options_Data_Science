@@ -60,8 +60,8 @@ def show_db_table(puts_calls):
 
 TDSession = TDClient(
     client_id=credentials.client_id,
-    redirect_uri='https://127.0.0.1',
-    credentials_path=credentials.json_path. #  Users/user/.../Project/td_state.json
+    redirect_uri=credentials.refresh_url,
+    credentials_path=credentials.json_path
 )
 
 TDSession.login()
@@ -86,19 +86,50 @@ def get_time_now():
     return int_curr_clock, curr_m, curr_y_d
 
 
-def history(symbol):
-    quotes = TDClient.get_price_history(TDSession, symbol=symbol, period_type='day',
-                                        period=1, frequency_type='minute', frequency=1,
-                                        extended_hours=False)
-    # start_date = 1606086000000, end_date = 1606341600000,
+# get historical averages #
+# Start #
+'''
+Example: For a 2 day / 1 min chart, the values would be:
+period: 2
+periodType: day
+frequency: 1
+frequencyType: min
+
+Valid periods by periodType (defaults marked with an asterisk):
+day: 1, 2, 3, 4, 5, 10*
+month: 1*, 2, 3, 6
+year: 1*, 2, 3, 5, 10, 15, 20
+ytd: 1*
+'''
+
+
+def history(symbol, period, p_type, freq, f_type):
+    quotes = TDClient.get_price_history(TDSession, symbol=symbol,
+                                        period=period, period_type=p_type,
+                                        frequency=freq, frequency_type=f_type,
+                                        extended_hours=False, start_date=1606086000000)
+    # start_date=1606086000000, end_date = 1606341600000,
 
     return quotes
 
 
+five_day_avg, five_cnt = 0, 0
+thirty_day_avg, thirty_cnt = 0, 0
+sixty_day_avg, sixty_cnt = 0, 0
+
+# print(history('SPY'))
+five_history = history('SPY', 5, 'day', 1, 'minute')
+# thirty_history = history('SPY', 30, 'day', 1, 'minute')
+# sixty_history = history('SPY', 60, 'day', 1, 'minute')
+
+for i in five_history['candles']:
+    five_cnt = five_cnt + 1
+    five_day_avg = (five_day_avg + i) / five_cnt
+    print(i['open'])
+# print(len(history('SPY')))
+# End #
+
 cur_weekly = 0
-cur_stocks = ['AAPL']
-
-
 file_date = 0
 
 pulls = 0
@@ -143,7 +174,7 @@ stocks = ['AAL', 'AAPL', 'AMD', 'AMZN', 'APA', 'ATVI', 'AXP', 'BABA', 'CME', 'CM
           'SNAP', 'SPY', 'SQ', 'TSLA', 'TWTR', 'ULTA', 'UPS', 'V', 'VXX', 'WMT', 'YUM',
           'VDE', 'XLB', 'XLI', 'VCR', 'VDC', 'XLV', 'XLF', 'VGT', 'XLC', 'XLU', 'VNQ']
 
-trade_stocks = ['AAPL', 'SPY', 'ROKU', 'TSLA', 'GME']
+trade_stocks = ['SPY']
 
 
 def get_weekly_data(clean):
@@ -162,50 +193,56 @@ def get_weekly_data(clean):
 
 
 def get_stocks(tickers):  # pass an array of ticker(s) for stock
-    stock_lookup = TDSession.get_quotes(instruments=tickers)
+    raw_data = TDSession.get_quotes(instruments=tickers)
 
-    return stock_lookup
+    return raw_data
 
 
 def raw_stock(raw):
     clean_stock_data = [[]]
 
     for stonk, data in raw.items():
-        for d in data.items():
-            print(d)
+        if stonk == 'SPY':
+            for attr, v in data.items():
+                if attr == 'totalVolume':
+                    print(v)
+            # BOOKMARK ~~~~~~~~~~~ move this logic to get_next_stocks()
+            cur_calls = clean_chain(raw_chain(get_chain(stonk), 'call'))
+            print(cur_calls['daysToExpiration'].unique())
+            call_df = cur_calls.loc[cur_calls['daysToExpiration'] < 9]
+            #print(call_df)
+            cur_puts = clean_chain(raw_chain(get_chain(stonk), 'put'))
+            put_df = cur_puts.loc[cur_puts['daysToExpiration'] < 7]
+            #print(put_df)
 
     return clean_stock_data
 
 
-def pandas_stock_data(arr):
-    pandas_data = []
-    return pandas_data
-
-
-def get_next_stocks(stonks):
+def get_next_stocks():
     global pulls
     global failed_pulls
 
-    error = False
+    for s in trade_stocks:
+        error = False
 
-    try:
-        stock_data = get_stocks(stonks)
-
-    except (exceptions.ServerError, exceptions.GeneralError, exceptions.ExdLmtError, ConnectionError):
-        error = True
-        failed_pulls = failed_pulls + 1
-        print('A server error occurred')
-
-    if not error:
         try:
-            clean_stock_data = pandas_stock_data(raw_stock(stock_data))
-            # add_rows(clean_stock_data) UNCOMMENT TO ADD TO STOCKS.DB
-            pulls = pulls + 1
+            stock_data = get_stocks([s])
 
-        except ValueError:
-            print(ValueError.with_traceback())
-            print(f'{stonks} did not have values for this iteration')
+        except (exceptions.ServerError, exceptions.GeneralError, exceptions.ExdLmtError, ConnectionError):
+            error = True
             failed_pulls = failed_pulls + 1
+            print('A server error occurred')
+
+        if not error:
+            try:
+                clean_stock_data = raw_stock(stock_data)
+                # add_rows(clean_stock_data) UNCOMMENT TO ADD TO STOCKS.DB
+                pulls = pulls + 1
+
+            except ValueError:
+                print(ValueError.with_traceback())
+                print(f'{s} did not have values for this iteration')
+                failed_pulls = failed_pulls + 1
 
     return 0
 
@@ -215,8 +252,8 @@ def get_next_stocks(stonks):
 
 def get_chain(stock):
     opt_lookup = TDSession.get_options_chain(
-        option_chain={'symbol': stock, 'strikeCount': 10,
-                      'toDate': '2021-2-19'})
+        option_chain={'symbol': stock, 'strikeCount': 5,
+                      'toDate': '2021-2-26'})
 
     return opt_lookup
 
@@ -252,8 +289,6 @@ def get_next_chains():
     x = 0
     global pulls
     global failed_pulls
-
-    current_cleaned_data = [[]]
 
     for stock in stocks:
         error = False
@@ -324,11 +359,11 @@ def main():
     global trade_stocks
 
     t, mon, day = get_time_now()
-    mon = list(trade_days_2021.keys())[int(mon) - 1]
+    month = list(trade_days_2021.keys())[int(mon) - 1]
     '''  # uncomment for LIVE
     while True:
         if (t < 930) or (t > 1600):
-            print(f'{t}: Market closed {mon}{day}'.upper())
+            print(f'{t}: Market closed {month}{day}'.upper())
             time.sleep(10)
         else:
             break
@@ -336,14 +371,14 @@ def main():
     # uncomment below line when TESTING on live data
     file_date = f'temp'
     # uncomment below line to save and analyze live data
-    # file_date = f'{mon}{day}'
+    # file_date = f'{month}{day}'
 
     pull_count = 0
-    end_t = 1600
+    end_t = 2300
 
-    while get_time_now()[0]:  # < end_t: insert segment to run LIVE
-
-        get_next_chains()
+    while get_time_now()[0]:
+        get_next_stocks()
+        # get_next_chains()
         pull_count = pull_count + 1
         print(pull_count)
         time.sleep(1)
