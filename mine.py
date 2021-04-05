@@ -108,7 +108,11 @@ columns_wanted = ['putCall', 'symbol', 'exchangeName', 'bid', 'ask', 'last', 'hi
                   'netChange', 'volatility', 'delta', 'gamma', 'theta', 'vega', 'rho', 'openInterest', 'timeValue',
                   'theoreticalVolatility', 'strikePrice', 'expirationDate', 'daysToExpiration', 'percentChange']
 
-stocks = ['A', 'AA', 'AACQ', 'AAIC', 'AAL', 'AAN', 'AAOI', 'AAON', 'AAP', 'AAPL', 'AAT', 'AAU', 'AAWW', 'AAXJ', 'AB', 'ABB',
+stocks = ['AAPL', 'AMD', 'AMZN', 'TSLA', 'MU', 'NVDA', 'GOOG', 'ROKU', 'NFLX', 'FB', 'CMG', 'GME', 'MCD', 'SNAP']
+
+''' ~5000 stocks to add to stock list  
+         
+         ['A', 'AA', 'AACQ', 'AAIC', 'AAL', 'AAN', 'AAOI', 'AAON', 'AAP', 'AAPL', 'AAT', 'AAU', 'AAWW', 'AAXJ', 'AB', 'ABB',
           'ABBV', 'ABC', 'ABCB', 'ABEO', 'ABEV', 'ABG', 'ABIO', 'ABM', 'ABMD', 'ABNB', 'ABR', 'ABT', 'ABTX', 'ABUS', 'ACA',
           'ACAD', 'ACB', 'ACC', 'ACCD', 'ACCO', 'ACEL', 'ACER', 'ACES', 'ACEV', 'ACGL', 'ACH', 'ACHC', 'ACI', 'ACIU', 'ACIW',
           'ACLS', 'ACM', 'ACMR', 'ACN', 'ACOR', 'ACR', 'ACRE', 'ACRS', 'ACRX', 'ACTC', 'ACTG', 'ACWI', 'ACWV', 'ACWX', 'ADAP',
@@ -361,7 +365,7 @@ stocks = ['A', 'AA', 'AACQ', 'AAIC', 'AAL', 'AAN', 'AAOI', 'AAON', 'AAP', 'AAPL'
           'XSD', 'XSLV', 'XSOE', 'XSPA', 'XT', 'XXII', 'XYL', 'Y', 'YANG', 'YCBD', 'YCL', 'YCS', 'YELL', 'YELP', 'YETI', 'YEXT', 'YGYI', 'YINN', 'YMAB',
           'YMTX', 'YNDX', 'YOLO', 'YORW', 'YPF', 'YRD', 'YSG', 'YUM', 'YUMC', 'YXI', 'YY', 'Z', 'ZBH', 'ZBRA', 'ZDGE', 'ZEN', 'ZEPP', 'ZEUS', 'ZG', 'ZGNX',
           'ZI', 'ZION', 'ZIOP', 'ZIXI', 'ZLAB', 'ZM', 'ZNGA', 'ZNH', 'ZNOG', 'ZNTE', 'ZROZ', 'ZS', 'ZSL', 'ZTO', 'ZTS', 'ZUMZ', 'ZUO', 'ZVO', 'ZYME', 'ZYNE', 'ZYXI', ]
-
+'''
 
 
 def human_time(epoch):
