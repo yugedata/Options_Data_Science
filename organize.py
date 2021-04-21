@@ -56,7 +56,7 @@ for filename in os.listdir(read_directory):
         c.close()
         cu.close()
 
-
+# possible fix: use sqlachemy from mining script
 for filename in os.listdir(read_directory):
     if filename.endswith(".db"):
         print(filename)
