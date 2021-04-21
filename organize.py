@@ -26,7 +26,7 @@ columns = ('putCall', 'symbol', 'exchangeName', 'bid', 'ask', 'last',
             'volatility', 'delta', 'gamma', 'theta', 'vega', 'rho', 'openInterest', 'timeValue',
             'theoreticalVolatility', 'strikePrice', 'expirationDate', 'daysToExpiration', 'percentChange')
 
-
+# sorting tickers is working but writing to new file is not
 for filename in os.listdir(read_directory):
     if filename.endswith(".db"):
         print(filename)
