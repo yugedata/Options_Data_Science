@@ -11,78 +11,76 @@ the OG miner will put the options data into stock tables
 [c]
 [d]
 """
+from sqlalchemy import create_engine
 import sqlite3
 import os
 import pandas as pd
 
 # file_date = ""
 
-read_directory = '/Users/Sato/Documents/PycharmProjects/open_interest/Data/'
-write_directory = '/Users/Sato/Documents/PycharmProjects/open_interest/Data_Library/'
+read_directory = '/Users/sato/PycharmProjects/open_interest/Data/'
+write_directory = '/Users/sato/PycharmProjects/open_interest/Data_Library/'
 substring = '_'
 
-columns = ('putCall', 'symbol', 'exchangeName', 'bid', 'ask', 'last',
+columns = ['index', 'putCall', 'symbol', 'exchangeName', 'bid', 'ask', 'last',
             'highPrice', 'lowPrice', 'openPrice', 'closePrice', 'totalVolume', 'quoteTimeInLong', 'netChange',
             'volatility', 'delta', 'gamma', 'theta', 'vega', 'rho', 'openInterest', 'timeValue',
-            'theoreticalVolatility', 'strikePrice', 'expirationDate', 'daysToExpiration', 'percentChange')
+            'theoreticalVolatility', 'strikePrice', 'expirationDate', 'daysToExpiration', 'percentChange']
+
+
+def add_rows(clean_data, table_name, file_date):
+
+    engine = create_engine(f'sqlite:///Data_Library/{file_date}', echo=False)
+    clean_data.to_sql(table_name, con=engine, if_exists='append')
+
+    return 0
+
 
 # sorting tickers is working but writing to new file is not
 for filename in os.listdir(read_directory):
     if filename.endswith(".db"):
         print(filename)
         con = sqlite3.connect(f'{read_directory}{filename}')
-        conn = sqlite3.connect(f'{write_directory}{filename}')
-        c = con.cursor()
-        c.execute("SELECT * FROM calls")
-        cu = con.cursor()
-        # res = c.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        df = pd.read_sql_query('''SELECT * FROM calls''', con)
 
-        for row in c:
-            temp_contract = row[2]
-            equity = temp_contract.partition(substring)[0]
-            sqlite_insert = f'''INSERT INTO c{equity} ('putCall', 'symbol', 'exchangeName', 'bid', 'ask', 'last', 
-            'highPrice', 'lowPrice', 'openPrice', 'closePrice', 'totalVolume', 'quoteTimeInLong', 'netChange', 
-            'volatility', 'delta', 'gamma', 'theta', 'vega', 'rho', 'openInterest', 'timeValue', 
-            'theoreticalVolatility', 'strikePrice', 'expirationDate', 'daysToExpiration', 'percentChange') 
-            values {row[1:]} '''
+        # df = df.drop(columns='index').to_numpy()
+        df = df.to_numpy()
+        temp_df = []
+        temp_equity = 0
 
-            try:
-                cu.execute(sqlite_insert)
-            except sqlite3.OperationalError:
-                cu.execute(f'''CREATE TABLE IF NOT EXISTS c{equity} {columns}''')
-            finally:
-                cu.execute(sqlite_insert)
-            conn.commit()
-        c.close()
-        cu.close()
+        for i in df:
+            if int(i[0]) == 0:
+                if temp_equity:
+                    go_df = pd.DataFrame(temp_df, columns=columns)
+                    add_rows(go_df.drop(columns=['index']), f'c{temp_equity}', filename)
+                    temp_df = []
 
-# possible fix: use sqlachemy from mining script
+                temp_df.append(i)
+                temp_contract = i[2]
+                temp_equity = temp_contract.partition(substring)[0]
+            else:
+                temp_df.append(i)
+
 for filename in os.listdir(read_directory):
     if filename.endswith(".db"):
         print(filename)
         con = sqlite3.connect(f'{read_directory}{filename}')
-        conn = sqlite3.connect(f'{write_directory}{filename}')
-        c = con.cursor()
-        c.execute("SELECT * FROM puts")
-        cu = con.cursor()
-        # res = c.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        df = pd.read_sql_query('''SELECT * FROM puts''', con)
 
-        for row in c:
-            temp_contract = row[2]
-            equity = temp_contract.partition(substring)[0]
-            sqlite_insert = f'''INSERT INTO p{equity} ('putCall', 'symbol', 'exchangeName', 'bid', 'ask', 'last', 
-            'highPrice', 'lowPrice', 'openPrice', 'closePrice', 'totalVolume', 'quoteTimeInLong', 'netChange', 
-            'volatility', 'delta', 'gamma', 'theta', 'vega', 'rho', 'openInterest', 'timeValue', 
-            'theoreticalVolatility', 'strikePrice', 'expirationDate', 'daysToExpiration', 'percentChange') 
-            values {row[1:]} '''
+        # df = df.drop(columns='index').to_numpy()
+        df = df.to_numpy()
+        temp_df = []
+        temp_equity = 0
 
-            try:
-                cu.execute(sqlite_insert)
-            except sqlite3.OperationalError:
-                cu.execute(f'''CREATE TABLE IF NOT EXISTS p{equity} {columns}''')
-                cu.execute(sqlite_insert)
-            conn.commit()
-        c.close()
-        cu.close()
+        for i in df:
+            if int(i[0]) == 0:
+                if temp_equity:
+                    go_df = pd.DataFrame(temp_df, columns=columns)
+                    add_rows(go_df.drop(columns=['index']), f'p{temp_equity}', filename)
+                    temp_df = []
 
-
+                temp_df.append(i)
+                temp_contract = i[2]
+                temp_equity = temp_contract.partition(substring)[0]
+            else:
+                temp_df.append(i)
