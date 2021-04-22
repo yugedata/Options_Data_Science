@@ -1,14 +1,3 @@
-"""
-[1] This script needs to take the raw data in all options
-files and separate tem into stock tables because now its only
-2 massive tables for calls and puts
-
-[2] When this is done a version 2 needs to be make so that
-the OG miner will put the options data into stock tables
-
-[a] for i in call/put table patition sym to find equity
-[b] put i in {equity} call/put table in new date file
-"""
 from sqlalchemy import create_engine
 import sqlite3
 import os
@@ -37,7 +26,7 @@ def add_rows(clean_data, table_name, file_date):
 # sorting tickers is working but writing to new file is not
 for filename in os.listdir(read_directory):
     if filename.endswith(".db"):
-        print(f'Calls in {filename}')
+        print(filename)
         con = sqlite3.connect(f'{read_directory}{filename}')
         df = pd.read_sql_query('''SELECT * FROM calls''', con)
 
@@ -61,7 +50,7 @@ for filename in os.listdir(read_directory):
 
 for filename in os.listdir(read_directory):
     if filename.endswith(".db"):
-        print(f'Puts in {filename}')
+        print(filename)
         con = sqlite3.connect(f'{read_directory}{filename}')
         df = pd.read_sql_query('''SELECT * FROM puts''', con)
 
