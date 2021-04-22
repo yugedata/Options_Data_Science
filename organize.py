@@ -8,8 +8,6 @@ the OG miner will put the options data into stock tables
 
 [a] for i in call/put table patition sym to find equity
 [b] put i in {equity} call/put table in new date file
-[c]
-[d]
 """
 from sqlalchemy import create_engine
 import sqlite3
@@ -39,7 +37,7 @@ def add_rows(clean_data, table_name, file_date):
 # sorting tickers is working but writing to new file is not
 for filename in os.listdir(read_directory):
     if filename.endswith(".db"):
-        print(filename)
+        print(f'Calls in {filename}')
         con = sqlite3.connect(f'{read_directory}{filename}')
         df = pd.read_sql_query('''SELECT * FROM calls''', con)
 
@@ -63,7 +61,7 @@ for filename in os.listdir(read_directory):
 
 for filename in os.listdir(read_directory):
     if filename.endswith(".db"):
-        print(filename)
+        print(f'Puts in {filename}')
         con = sqlite3.connect(f'{read_directory}{filename}')
         df = pd.read_sql_query('''SELECT * FROM puts''', con)
 
