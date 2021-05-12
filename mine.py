@@ -441,7 +441,7 @@ def get_next_chains():
         if not error:
             try:
                 working_call_data = clean_chain(raw_chain(chain, 'call'))
-                add_rows(working_call_data, 'calls')
+                add_rows(working_call_data, f'c{stock}')
 
                 # print(working_call_data) UNCOMMENT to see working call data
 
@@ -453,7 +453,7 @@ def get_next_chains():
 
             try:
                 working_put_data = clean_chain(raw_chain(chain, 'put'))
-                add_rows(working_put_data, 'puts')
+                add_rows(working_call_data, f'p{stock}')
 
                 # print(working_put_data) UNCOMMENT to see working put data
 
