@@ -37,9 +37,7 @@ d) In your working directory make a 'Data' for data storage
 
 * In the stocks array, edit this list to collect options for any stock you want
 
-* Inside the get_chain() method, 'toDate' value is a date.
-Change the date to pull all weekly option chains leading up to that day. 
-Make sure the date is a Friday.
+* in main(), change the argument in last_chain(#) to how many weeks of data u want. -> to_date = str(last_chain(5))
 
 
 e) Run mine.py right before market opens. ~09:25 EST
