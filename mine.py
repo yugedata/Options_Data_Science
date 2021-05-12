@@ -1,12 +1,13 @@
 from sqlalchemy import create_engine
 from td.client import TDClient
 from datetime import datetime
+from datetime import date
 from td import exceptions
-import datetime
 import pandas as pd
 import sqlite3
 import time
 import credentials
+
 
 TDSession = TDClient(
     client_id=credentials.client_id,
@@ -73,6 +74,7 @@ def show_db_table(puts_calls):
 
 
 file_date = 0
+to_date = 0
 
 trade_days_2021 = {'jan': [4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 19, 20, 21, 22, 25, 26, 27, 28, 29],
                    'feb': [1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 16, 17, 18, 19, 22, 23, 24, 25, 26],
@@ -110,7 +112,7 @@ columns_wanted = ['putCall', 'symbol', 'exchangeName', 'bid', 'ask', 'last', 'hi
 
 stocks = ['AAPL', 'AMD', 'AMZN', 'TSLA', 'MU', 'NVDA', 'GOOG', 'ROKU', 'NFLX', 'FB', 'CMG', 'GME', 'MCD', 'SNAP']
 
-''' ~5000 stocks to add to stock list  
+''' ~4700 stocks to add to stock list  
          
          ['A', 'AA', 'AACQ', 'AAIC', 'AAL', 'AAN', 'AAOI', 'AAON', 'AAP', 'AAPL', 'AAT', 'AAU', 'AAWW', 'AAXJ', 'AB', 'ABB',
           'ABBV', 'ABC', 'ABCB', 'ABEO', 'ABEV', 'ABG', 'ABIO', 'ABM', 'ABMD', 'ABNB', 'ABR', 'ABT', 'ABTX', 'ABUS', 'ACA',
@@ -386,6 +388,33 @@ def get_time_now():
     return int_curr_clock, curr_m, curr_y_d
 
 
+def all_fridays(year):
+    return pd.date_range(start=str(year), end=str(year+1),
+                         freq='W-FRI').strftime('%m/%d/%Y').tolist()
+
+
+def last_chain(weeks_out):  # returns the date to put into lookup_chain
+    today = str(date.today().strftime("%m/%d/%Y"))
+    year = today[-4:]
+    x_days = all_fridays(int(year))[:52]
+
+    fri_count = 0
+
+    for i in x_days:
+        if today < i:
+            fri_count = fri_count + 1
+            if fri_count == weeks_out:
+                return f'{i[-4:]}-{i[:2]}-{i[3:5]}'
+
+    if fri_count < 5:
+        y_days = all_fridays(year + 1)[:52]
+        for i in y_days:
+            if today < i:
+                fri_count = fri_count + 1
+                if fri_count == weeks_out:
+                    return f'{i[-4:]}-{i[:2]}-{i[3:5]}'
+
+                
 def get_chain(stock):
     opt_lookup = TDSession.get_options_chain(
         option_chain={'symbol': stock, 'strikeCount': 50,
@@ -472,8 +501,9 @@ def get_next_chains():
 
 def main():
 
-    global file_date
+    global file_date, to_date
 
+    to_date = str(last_chain(5))  # specify how many weeks of contracts you want for each pull
     t, mon, day = get_time_now()
     month = list(trade_days_2021.keys())[int(mon) - 1]
 
