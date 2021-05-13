@@ -416,9 +416,11 @@ def last_chain(weeks_out):  # returns the date to put into lookup_chain
 
                 
 def get_chain(stock):
+    global to_date
+    
     opt_lookup = TDSession.get_options_chain(
         option_chain={'symbol': stock, 'strikeCount': 50,
-                      'toDate': '2021-4-9'})
+                      'toDate': to_date})
 
     return opt_lookup
 
