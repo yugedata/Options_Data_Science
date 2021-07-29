@@ -67,10 +67,10 @@ def get_uniques_columns():  # get unique symbols from all files in directory
                 s_table = str(tab[0])
 
                 if tab[0][0] == 'c':
-                    calls = pd.read_sql_query(f'SELECT DISTINCT symbol FROM \'{s_table}\' WHERE totalVolume > 5 AND (symbol LIKE \"%!_07%\" ESCAPE \"!\" OR symbol LIKE \"%\!_08%\" ESCAPE \"!\") ', con)
+                    calls = pd.read_sql_query(f'SELECT DISTINCT symbol FROM \'{s_table}\' WHERE totalVolume > 5" ', con)
                     add_contracts(calls, 'calls')
                 else:
-                    puts = pd.read_sql_query(f'SELECT DISTINCT symbol FROM \'{s_table}\' WHERE totalVolume > 5 AND (symbol LIKE \"%!_07%\" ESCAPE \"!\" OR symbol LIKE \"%\!_08%\" ESCAPE \"!\") ', con)
+                    puts = pd.read_sql_query(f'SELECT DISTINCT symbol FROM \'{s_table}\' WHERE totalVolume > 5 AND ', con)
                     add_contracts(puts, 'puts')
         else:
             continue
@@ -187,7 +187,7 @@ for x in sorted(volumes_calls.keys()):
                 con = sqlite3.connect(f'NewData/{filename}')
                 try:
                     data = pd.read_sql_query('SELECT symbol, totalVolume, quoteTimeInLong '
-                                             f'FROM \'c{t[0]}\' WHERE totalVolume > 5 AND (symbol LIKE \"%!_07%\" ESCAPE \"!\" OR symbol LIKE \"%\!_08%\" ESCAPE \"!\") ORDER BY quoteTimeInLong DESC', con)
+                                             f'FROM \'c{t[0]}\' WHERE totalVolume > 5 AND ORDER BY quoteTimeInLong DESC', con)
 
                     dict_copy = data.to_dict('records')
                     call_dict[f'{filename}'] = dict_copy
@@ -241,7 +241,7 @@ for x in sorted(volumes_puts.keys()):
             con = sqlite3.connect(f'NewData/{filename}')
             try:
                 data = pd.read_sql_query('SELECT symbol, totalVolume, quoteTimeInLong '
-                                         f'FROM \'p{t[0]}\' WHERE totalVolume > 5 AND (symbol LIKE \"%!_07%\" ESCAPE \"!\" OR symbol LIKE \"%\!_08%\" ESCAPE \"!\") ORDER BY quoteTimeInLong DESC', con)
+                                         f'FROM \'p{t[0]}\' WHERE totalVolume > 5 AND ORDER BY quoteTimeInLong DESC', con)
             except DatabaseError as e:
                 # print(e)
                 continue
