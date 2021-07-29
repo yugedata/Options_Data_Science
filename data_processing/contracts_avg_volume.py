@@ -1,8 +1,3 @@
-"""
-Next Phase: Dice all data in the files into seperate tables for each equity
-            Get research to only check specific equity tables inside each data folder
-            Write averages to SQL instead of plain csv
-"""
 import sqlite3
 import os
 import pandas as pd
@@ -58,14 +53,15 @@ def get_uniques_columns():  # get unique symbols from all files in directory
 
     for F_name in os.listdir(directory):
         if F_name.endswith(".db"):
+        
             print(os.path.join(directory, F_name))
             con = sqlite3.connect(f'NewData/{F_name}')
             cursor = con.cursor()
-            # df = pd.read_sql_query("SELECT daysToExpiration FROM calls", con)
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+
             for tab in cursor.fetchall():
                 s_table = str(tab[0])
-
+                
                 if tab[0][0] == 'c':
                     calls = pd.read_sql_query(f'SELECT DISTINCT symbol FROM \'{s_table}\' WHERE totalVolume > 5" ', con)
                     add_contracts(calls, 'calls')
@@ -81,13 +77,14 @@ def get_uniques_columns():  # get unique symbols from all files in directory
     con.close()
 
 
-#get_uniques_columns()
+get_uniques_columns()
 
 
 def write_uniques(to_file_calls, to_file_puts):
     # This block with write all unique contracts to a file
     symbols_calls = []
     symbols_puts = []
+    
     for i in contracts_calls:
         symbols_calls.append(str(i))
 
@@ -98,7 +95,7 @@ def write_uniques(to_file_calls, to_file_puts):
     add_column_csv(to_file_puts, sorted(symbols_puts))
 
 
-#write_uniques('unique_data_calls_no0.csv', 'unique_data_puts_no0.csv')
+write_uniques('unique_data_calls.csv', 'unique_data_puts.csv')
 
 
 def read_uniques(file_name, calls_puts):
@@ -111,8 +108,8 @@ def read_uniques(file_name, calls_puts):
             Contracts_puts.append(row['contracts'])
 
 
-read_uniques('unique_data_calls_no0.csv', 'calls')
-read_uniques('unique_data_puts_no0.csv', 'puts')
+read_uniques('unique_data_calls.csv', 'calls')
+read_uniques('unique_data_puts.csv', 'puts')
 
 
 # read unique_data.csv to make list of lists for volume
@@ -167,14 +164,13 @@ daily_avg_file_p = f'puts_avg_{month}{day}.csv'
 
 
 print('Extracting Call volume data...\n')
-# cw = csv.writer(open(f"{daily_avg_file_c}", "a"))
 
 call_dict = {}
 c_count = 0
 last_x = ''
 
 for x in sorted(volumes_calls.keys()):
-    #print(x)
+    
     t = x.split("_")
 
     if x == last_x:
@@ -205,28 +201,20 @@ for x in sorted(volumes_calls.keys()):
     # for each symbol in volumes_puts{} get avg from all saved files
     for key, value in call_dict.items():
         for r in value:
-            # print(x, ' = ', r['symbol'])
             if x == r['symbol']:
                 temp_vol = volumes_calls[x][0]
                 temp_cnt = volumes_calls[x][1] + 1
                 temp_avg = int((temp_vol + int(r['totalVolume'])) / temp_cnt)
                 volumes_calls[x][0] = temp_avg
                 volumes_calls[x][1] = temp_cnt
-                # print(temp_cnt)
+                
                 break
 
     temp_data = {'symbol': [x], 'avgVolume': [temp_avg], 'daysComputed': [temp_cnt]}
     working_call_data = pd.DataFrame(data=temp_data)
     add_rows(working_call_data, f'c{table}')
-    #c_count = c_count + 1
-    # print(c_count)
-
-    # cw.writerow([x, temp_avg])  # pre-fix all symbols to one csv file
-
-    # print(f"{x} not in {not_here_count_c} files.")
-
+    
 print('Extracting Put volume data...\n')
-# pw = csv.writer(open(f"{daily_avg_file_p}", "a"))
 
 p_count = 0
 for x in sorted(volumes_puts.keys()):
@@ -265,9 +253,4 @@ for x in sorted(volumes_puts.keys()):
     add_rows(working_put_data, f'p{table}')
     p_count = p_count + 1
     print(p_count)
-
-    # pw.writerow([x, temp_avg])  # pre-fix all symbols to one csv file
-
-    # print(f"{x} not in {not_here_count_p} files.")
-
 
