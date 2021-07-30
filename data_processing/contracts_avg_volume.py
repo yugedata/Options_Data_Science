@@ -1,15 +1,18 @@
+"""
+If you want the avgerages of contracts saved in your Data folder
+run this script to produce Options_average_calls.db & Options_average_puts.db
+"""
 import sqlite3
 import os
 import pandas as pd
 import numpy as np
 import csv
 import time
-
 import pandas.io.sql
 from sqlalchemy import create_engine
 from pandas.io.sql import DatabaseError
 
-directory = '/Users/.../NewData/'
+directory = '/Users/.../Data/'
 
 contracts_calls = set()
 contracts_puts = set()
@@ -28,7 +31,6 @@ def get_time_now():
     curr_clock = time.strftime("%H:%M:%S", curr_time)
     curr_m = time.strftime('%m')
     curr_y_d = time.strftime('%d%Y')
-
     int_curr_clock = int(f'{curr_clock[:2]}{curr_clock[3:5]}')
 
     return int_curr_clock, curr_m, curr_y_d
@@ -55,7 +57,7 @@ def get_uniques_columns():  # get unique symbols from all files in directory
         if F_name.endswith(".db"):
         
             print(os.path.join(directory, F_name))
-            con = sqlite3.connect(f'NewData/{F_name}')
+            con = sqlite3.connect(f'Data/{F_name}')
             cursor = con.cursor()
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
 
@@ -115,14 +117,12 @@ read_uniques('unique_data_puts.csv', 'puts')
 # read unique_data.csv to make list of lists for volume
 def make_call_list():
     for sym in Contracts_calls:
-        if int(sym.split("_")[1][:2]) >= 7:
-            volumes_calls[sym] = [0, 0]
+        volumes_calls[sym] = [0, 0]
 
 
 def make_put_list():
     for sym in Contracts_puts:
-        if int(sym.split("_")[1][:2]) >= 7:
-            volumes_puts[sym] = [0, 0]
+        volumes_puts[sym] = [0, 0]
 
 
 def add_rows(clean_data, table_name):
@@ -180,7 +180,7 @@ for x in sorted(volumes_calls.keys()):
 
         for filename in os.listdir(directory):
             if filename.endswith(".db"):
-                con = sqlite3.connect(f'NewData/{filename}')
+                con = sqlite3.connect(f'Data/{filename}')
                 try:
                     data = pd.read_sql_query('SELECT symbol, totalVolume, quoteTimeInLong '
                                              f'FROM \'c{t[0]}\' WHERE totalVolume > 5 AND ORDER BY quoteTimeInLong DESC', con)
@@ -226,7 +226,7 @@ for x in sorted(volumes_puts.keys()):
 
     for filename in os.listdir(directory):
         if filename.endswith(".db"):
-            con = sqlite3.connect(f'NewData/{filename}')
+            con = sqlite3.connect(f'Data/{filename}')
             try:
                 data = pd.read_sql_query('SELECT symbol, totalVolume, quoteTimeInLong '
                                          f'FROM \'p{t[0]}\' WHERE totalVolume > 5 AND ORDER BY quoteTimeInLong DESC', con)
